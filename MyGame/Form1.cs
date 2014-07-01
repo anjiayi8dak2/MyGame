@@ -12,9 +12,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using System.Windows;
-using System.Management; 
-using CoreAudioApi;
-
+using System.Management;
+using Microsoft.DirectX;
+using Microsoft.DirectX.DirectSound;
+using Microsoft.DirectX.AudioVideoPlayback;
 
 namespace MyGame
 {
@@ -26,29 +27,16 @@ namespace MyGame
 
     {   
         // <variables>
-        //
-
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
-        private MMDevice device;
-        private MMDeviceEnumerator DevEnum = new MMDeviceEnumerator();
-        //
-
-        int Xf, Yf, deltaX, deltaY, step = 0;
-        static int dir = 0;
-        static int zomDir = 0;
-        static int zomDis;
-
-        int curlvl = 0;
-        public static double distance;
-        int[,] data;
+        int Xf, Yf ,step = 0;
+        static int Xz, Yz , zomDir, dir;
+        static double distance, zomDis;
+        static int[,] data;
         ucItem[,] items;
-        Point curPoint;
-
-        
-
-
-
+        static Point curPoint;
+        static bool kill = false;
+        int curlvl = 0;
         // <variables>
 
 
@@ -113,15 +101,17 @@ namespace MyGame
                 }
             }
 
-            getDir();                               //every time load map    calcu  dir / dis       
+            getDir();                               //every time load map    calcu  dir / dis      
+
             ShowInfo();                             //                  update textbox
             textBox1.Focus();
-            
+ //           ZombieLoop();
+ //           getZomDir();
         }
 
         private void ShowInfo()                // update outprint text in the text box
         {
-            textBox1.Text = "x:" + curPoint.X + ",y:" + curPoint.Y + " "+zomDir + " " + zomDis;
+            textBox1.Text = "dir " + zomDir  + "dis  " +zomDis;
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)    //accept input then move
@@ -155,13 +145,46 @@ namespace MyGame
                     data[curPoint.Y, curPoint.X] = 8;
                     GoNewPoint(newPoint1, newPoint2);
                     break;
-                case 32:
+                case 87:  //W
                     if (zomDis <= 2)
-                    { 
-                        //do something
+                    {
+                        if (zomDir == 3)
+                        {
+                            SoundPunch();
+                            kill = true;
+                        }
                     }
                     break;
-
+                case 83:  //S
+                    if (zomDis <= 2)
+                    {
+                        if (zomDir == 7)
+                        {
+                            SoundPunch();
+                            kill = true;
+                        }
+                    }
+                    break;
+                case 65:  //A
+                    if (zomDis <= 2)
+                    {
+                        if (zomDir == 5)
+                        {
+                            SoundPunch();
+                            kill = true;
+                        }
+                    }
+                    break;
+                case 68:  //D
+                    if (zomDis <= 2)
+                    {
+                        if (zomDir == 1)
+                        {
+                            SoundPunch();
+                            kill = true;
+                        }
+                    }
+                    break;
             }
 
             ShowInfo();                                              //  每次移动 everytime move update textbox
@@ -221,7 +244,7 @@ namespace MyGame
         }
 
 
-        void RefImg(Point p)                //刷新图片
+        void RefImg(Point p)                //reload image
         {
             items[p.Y, p.X].Tag = data[p.Y, p.X];
             items[p.Y, p.X].RefImage();           
@@ -230,8 +253,8 @@ namespace MyGame
         #region //                  计算方向和距离
         public void getDir()
         {
-            deltaX = Xf - curPoint.X;
-            deltaY = Yf - curPoint.Y;
+           int deltaX = Xf - curPoint.X;
+           int deltaY = Yf - curPoint.Y;
          
            if (curPoint.X == Xf && curPoint.Y > Yf)
             {
@@ -286,7 +309,7 @@ namespace MyGame
 
 
            double temp = 0.5-(distance / 20);
-           SetVol(temp);
+
         }
         #endregion
 
@@ -297,6 +320,7 @@ namespace MyGame
             if (dir == 1)
             {
                 SoundRight();
+
             }
             else if (dir == 2)
             {
@@ -331,91 +355,202 @@ namespace MyGame
         }
 
         #region  //  音频文件
+        public static void SoundZombieBack()
+        {
+            Audio backmusic;
+
+            backmusic = new Audio("zombie_back.wav");
+            backmusic.Volume = ((int) zomDis )*(-1000);
+            backmusic.Play();
+            Thread.Sleep(200);
+        }
+
+         public static void SoundZombieFront()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play(); 
+             Thread.Sleep(200);
+         }
+         public static void SoundZombieFrontLeft()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_front_left.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+         public static void SoundZombieFrontRight()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_front_right.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+         public static void SoundZombieback()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_back.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+         public static void SoundZombieBackLeft()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_back_left.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+         public static void SoundZombieBackRight()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_back_right.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+         public static void SoundZombieRight()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_right.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+
+         public static void SoundZombieLeft()
+         {
+             Audio backmusic;
+
+             backmusic = new Audio("zombie_left.wav");
+             backmusic.Volume = ((int)zomDis) * (-1000);
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+
+
+
         public static void SoundTada()
         {
-            string soundfile = @".\tada.wav";
-            byte[] bt = File.ReadAllBytes(soundfile);
-            var sound = new System.Media.SoundPlayer(soundfile);
-            sound.Play();
-            Thread.Sleep(500);
+            Audio backmusic;
+
+            backmusic = new Audio("tada.wav");
+            backmusic.Volume = -3000;
+            backmusic.Play();
+            Thread.Sleep(200);
         }
         public static void SoundWall()
          {
-             string soundfile = @".\wall.wav";
-              byte[] bt = File.ReadAllBytes(soundfile);
-              var sound = new System.Media.SoundPlayer(soundfile);
-              sound.Play();
-              Thread.Sleep(200);
-         }
+             Audio backmusic;
 
+             backmusic = new Audio("wall.wav");
+             backmusic.Volume = -3000;
+             backmusic.Play();
+             Thread.Sleep(200);
+         }
+        public static void SoundPunch()
+        {
+            Audio backmusic;
+
+            backmusic = new Audio("punch.wav");
+            backmusic.Volume = -3000;
+            backmusic.Play();
+            Thread.Sleep(200);
+        }
          public static void SoundBack()
          {
-             string soundfile = @".\back.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("back.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
          public static void SoundBackLeft()
          {
-             string soundfile = @".\back_left.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("back_left.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
          public static void SoundBackRight()
          {
-             string soundfile = @".\back_right.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("back_right.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
          public static void SoundFront()
          {
-             string soundfile = @".\front.wav";
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("front.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
          public static void SoundFrontLeft()
          {
-             string soundfile = @".\front_left.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("front_left.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
          public static void SoundFrontRight()
          {
-             string soundfile = @".\front_right.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("front_right.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
 
          public static void SoundLeft()
          {
-             string soundfile = @".\left.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("left.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
          public static void SoundRight()
          {
-             string soundfile = @".\right.wav";
-             byte[] bt = File.ReadAllBytes(soundfile);
-             var sound = new System.Media.SoundPlayer(soundfile);
-             sound.Play();
+             Audio backmusic;
+
+             backmusic = new Audio("right.wav");
+             backmusic.Volume = ((int)distance) * (-1000);
+             backmusic.Play();
              Thread.Sleep(200);
          }
 
@@ -424,51 +559,217 @@ namespace MyGame
 
 
 
-         public static void SoundLoop()
+/*
+         public static void ZombieSoundLoop()  //=============================sound thread
          {
 
              Thread.Sleep(500);
              while (true)
              {
-                 PlaySound();
+                 PlayZombieSound();
                  Thread.Sleep(3000);
              }
          }
-
-         public void SetVol(double arg)
+*/
+         public static void PlayZombieSound()      // base on dir, determin which sound file to play
          {
-             device = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
-             device.AudioEndpointVolume.MasterVolumeLevelScalar = (float)arg;
+             if (zomDir == 1)
+             {
+                 SoundZombieRight();
+             }
+             else if (zomDir == 2)
+             {
+                 SoundZombieFrontRight();
+             }
+             else if (zomDir == 3)
+             {
+                 SoundZombieFront();
+             }
+             else if (zomDir == 4)
+             {
+                 SoundZombieFrontLeft();
+             }
+             else if (zomDir == 5)
+             {
+                 SoundZombieLeft();
+             }
+             else if (zomDir == 6)
+             {
+                 SoundZombieBackLeft();
+             }
+             else if (zomDir == 7)
+             {
+                 SoundZombieBack();
+             }
+             else if (zomDir == 8)
+             {
+                 SoundZombieBackRight();
+             }
+         }
+
+         public static void SoundLoop()  //=============================sound thread
+         {
+
+             Thread.Sleep(1000);
+             while (true)
+             {
+                 PlayZombieSound();
+                 Thread.Sleep(3000);
+                 PlaySound();
+                 Thread.Sleep(3000);
+
+             }
          }
 
 
-         public static void ZombieLoop()
+         public static void ZombieLoop() //=======================zombie thread
          {
+             Thread.Sleep(1000);
+
              Random rand = new Random();
+             Xz = rand.Next(1, 17);
+             Yz = rand.Next(1, 17);
+             getZomDir();
 
-             zomDir = rand.Next(1, 5);
-             zomDis = rand.Next(1, 10);   // 1-9 between
-
-             while (zomDis != 0)
+             while (zomDis <= 3)
              {
+                 Xz = rand.Next(1, 17);
+                 Yz = rand.Next(1, 17);
+                 getZomDir();
+             }
 
-//                 Console.WriteLine("zombie distance :" + zomDis + " direcition: " + zomDir);
-                 zomDis--;
-                 Thread.Sleep(1000);
+             while (true)
+             {
+                 if (Xz > curPoint.X)
+                 {
+                     Xz--;
+                 }
+                 else if (Xz < curPoint.X)
+                 {
+                     Xz++;
+                 }
+                 else if (Yz > curPoint.Y)
+                 {
+                     Yz--;
+                 }
+                 else if (Yz < curPoint.Y)
+                 {
+                     Yz++;
+                 }
+
+                 getZomDir();
+                 Thread.Sleep(3000);
+                 
+                 if (kill)                              // press button while distance <=2
+                 {
+
+                     kill = false;
+                     while (zomDis <= 3)
+                     {
+                         Xz = rand.Next(1, 17);
+                         Yz = rand.Next(1, 17);
+                         getZomDir();
+                     }
+
+                 }
+                 if (Yz == curPoint.Y && Xz == curPoint.X)                        //zombie approch
+                 {
+                     System.Windows.Forms.MessageBox.Show("game over!");
+                     System.Windows.Forms.Application.Exit();
+                 }
+
 
 
              }
-
-
-             Thread.Sleep(1000);
-//             Console.WriteLine("zombie eat your brain :" + zomDis);
-
+             
+              //===========================================basic  zombie idea
+             
+         /*    
+             while (true)
+             {
+                 zomDis--;
+                 Thread.Sleep(1000);
+                 if (kill)                              // press button while distance <=2
+                 {
+                     kill = false;
+                     zomDis = 10;
+                     //return;
+                 }
+                 if (zomDis <= 0)                        //zombie approch
+                 {
+                     System.Windows.Forms.MessageBox.Show("game over!");
+                     System.Windows.Forms.Application.Exit();
+                 }
+             }
+        */
+         
+         
          }
 
-       
 
 
 
+
+         public static void getZomDir()
+         {
+             int deltaXZ = Xz - curPoint.X;
+             int deltaYZ = Yz - curPoint.Y;
+
+             if (curPoint.X == Xz && curPoint.Y > Yz)
+             {
+                 //正上
+                 zomDir = 3;
+                 zomDis = curPoint.Y - Yz;
+             }
+             else if (curPoint.X == Xz && curPoint.Y < Yz)
+             {
+                 //正下
+                 zomDir = 7;
+                 zomDis = Yz - curPoint.Y;
+             }
+             else if (curPoint.X > Xz && curPoint.Y == Yz)
+             {
+                 //正左
+                 zomDir = 5;
+                 zomDis = curPoint.X - Xz;
+             }
+             else if (curPoint.X < Xz && curPoint.Y == Yz)
+             {
+                 //正右
+                 //    angel = 0;
+                 zomDir = 1;
+                 zomDis = Xz - curPoint.X;
+             }
+             else if (deltaXZ > 0 && deltaYZ < 0)
+             {
+                 //1 右上    
+                 zomDir = 2;
+                 zomDis = Math.Sqrt((deltaXZ * deltaXZ) + (deltaYZ * deltaYZ));
+             }
+             else if (deltaXZ < 0 && deltaYZ < 0)
+             {
+                 //2  左上
+                 zomDir = 4;
+                 zomDis = Math.Sqrt((deltaXZ * deltaXZ) + (deltaYZ * deltaYZ));
+             }
+             else if (deltaXZ < 0 && deltaYZ > 0)
+             {
+                 //3  左下
+                 zomDir = 6;
+                 zomDis = Math.Sqrt((deltaXZ * deltaXZ) + (deltaYZ * deltaYZ));
+
+             }
+             else if (deltaXZ > 0 && deltaYZ > 0)
+             {
+                 //4 右下
+                 zomDir = 8;
+                 zomDis = Math.Sqrt((deltaXZ * deltaXZ) + (deltaYZ * deltaYZ));
+             }
+
+
+             double temp = 0.5 - (distance / 20);
+            // SetVol(temp);
+         }
 
 
 

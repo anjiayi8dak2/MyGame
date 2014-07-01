@@ -1,0 +1,3 @@
+C:\Users\jiayi\Desktop\原件\MyGame\bin\x86\Debug\MyGame.exe.config
+C:\Users\jiayi\Desktop\原件\MyGame\obj\x86\Debug\Interop.DXTRANSLib.dll
+C:\Users\jiayi\Desktop\原件\MyGame\obj\x86\Debug\MyGame.csproj.ResolveComReference.cache

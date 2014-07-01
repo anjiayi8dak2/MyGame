@@ -14,6 +14,7 @@ namespace MyGame
         /// </summary>
         //[STAThread]
 
+
         static void Main()
         {
             
@@ -23,12 +24,15 @@ namespace MyGame
             Thread z = new Thread(Form1.ZombieLoop);
             z.Start();
 
+
+
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false); 
+            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
 
             t.Abort();
             z.Abort();
+
         }
 
 
